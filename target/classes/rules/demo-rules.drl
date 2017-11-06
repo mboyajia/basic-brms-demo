@@ -1,0 +1,109 @@
+package com.sample
+
+import com.rule.classes.*;
+
+rule "Give all doctors a 10% discount"
+when
+	$person : Person(
+		job == JobType.DOCTOR,
+		discount < 10,
+		discountList not contains DiscountType.DOCTOR
+	)
+then
+	System.out.println("Giving " + $person.getFullName() + " a 10% discount!");
+	$person.addDiscount(DiscountType.DOCTOR);
+	modify($person) {
+		setDiscount(10)
+	}
+end
+
+rule "Give all women over 60 a 20% discount"
+when
+	$person : Person(
+		gender == "female",
+		age > 60,
+		discount < 20,
+		discountList not contains DiscountType.FEMALE60
+	)
+then
+	System.out.println("Giving " + $person.getFullName() + " a 20% discount!");
+	$person.addDiscount(DiscountType.FEMALE60);
+	modify($person) {
+		setDiscount(20)
+	}
+end
+rule "Give all men over 30 a 5% discount"
+when
+	$person : Person(
+		gender == "male",
+		age > 30,
+		discount < 5,
+		discountList not contains DiscountType.MALE30
+	)
+then
+	System.out.println("Giving " + $person.getFullName() + " a 5% discount!");
+	$person.addDiscount(DiscountType.MALE30);
+	modify($person) {
+		setDiscount(5)
+	}
+end
+
+rule "Give all athletes an additional 5% discount"
+no-loop true
+when
+	$person : Person(
+		job == JobType.ATHLETE,
+		$discount : discount != null,
+		discountList not contains DiscountType.ATHLETE
+	)
+then
+	System.out.println("Giving " + $person.getFullName() + " an additional 5% athlete discount!");
+	$person.addDiscount(DiscountType.ATHLETE);
+	modify($person) {
+		setDiscount($discount + 5)
+	}
+end
+
+rule "Give all people with pets an additional 5% discount"
+no-loop true
+when
+	$person : Person(
+		pets.size > 0,
+		$discount : discount != null,
+		discountList not contains DiscountType.PETOWNER
+	)
+then
+	System.out.println("Giving " + $person.getFullName() + " an additional 5% pet discount!");
+	$person.addDiscount(DiscountType.PETOWNER);
+	modify($person) {
+		setDiscount($discount + 5)
+	}
+end
+
+rule "Print all final discounts"
+salience -10
+when
+	$person : Person(
+		discount != null
+	)
+then
+	System.out.println("----> " + $person.getFullName() + " has a final discount of " + $person.getDiscount() + "%");
+	System.out.println("\tDiscounts applied: " + $person.getDiscountList().toString());
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
